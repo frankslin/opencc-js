@@ -7,7 +7,7 @@ function getAbsPath(relativePath) {
 }
 
 const fileContentCache = {};
-const sourceDictDir = getAbsPath('./data/dictionary');
+const sourceDictDir = getAbsPath('./node_modules/opencc-data/data');
 
 function flattenDictNames(dictGroups) {
   return dictGroups.flatMap(group => Array.isArray(group) ? group : [group]);
@@ -17,45 +17,8 @@ function getDictPath(fileName) {
   return `${sourceDictDir}/${fileName}.txt`;
 }
 
-function ensureReverseFile(fileName) {
-  if (!fileName.endsWith('Rev')) {
-    return;
-  }
-
-  const outputFile = getDictPath(fileName);
-  if (fs.existsSync(outputFile)) {
-    return;
-  }
-
-  const inputFile = getDictPath(fileName.slice(0, -3));
-  const reversed = new Map();
-  fs.readFileSync(inputFile, { encoding: 'utf-8' })
-    .split('\n')
-    .forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) {
-        return;
-      }
-
-      const [key, values] = line.replace(/\r$/, '').split('\t');
-      values.split(' ').forEach(value => {
-        if (!reversed.has(value)) {
-          reversed.set(value, []);
-        }
-        reversed.get(value).push(key);
-      });
-    });
-
-  const output = Array.from(reversed.keys())
-    .sort()
-    .map(key => `${key}\t${reversed.get(key).join(' ')}`)
-    .join('\n');
-  fs.writeFileSync(outputFile, `${output}\n`);
-}
-
 function loadFile(fileName) {
   if (!fileContentCache[fileName]) {
-    ensureReverseFile(fileName);
     fileContentCache[fileName] = fs
       .readFileSync(getDictPath(fileName), {
         encoding: 'utf-8'
