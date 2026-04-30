@@ -2,6 +2,8 @@
 
 开放中文转换 JavaScript 版
 
+字典数据会在构建时从 `opencc-data` 生成，并打包进发布文件。浏览器运行时不会额外下载字典 txt 文件。
+
 ## 加载
 
 **在 HTML 中加载**
@@ -9,9 +11,9 @@
 加载以下 `script` 标签（择一即可）：
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>     <!-- 完全版 -->
-<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/cn2t.js"></script>     <!-- 只需要简转繁时 -->
-<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/t2cn.js"></script>     <!-- 只需要繁转简时 -->
+<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.3.0/dist/umd/full.js"></script>     <!-- 完全版 -->
+<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.3.0/dist/umd/cn2t.js"></script>     <!-- 只需要简转繁时 -->
+<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.3.0/dist/umd/t2cn.js"></script>     <!-- 只需要繁转简时 -->
 ```
 
 自行托管的话，除了使用原先的 umd，也可以使用 es module
@@ -57,7 +59,7 @@ console.log(converter('漢語')); // output: 汉语
     - `twp`: 且转换词汇（例如：自行車 -> 腳踏車）
 - `hk`: 繁体中文（香港）
 - `jp`: 日本新字体
-- `t`: 繁体中文（OpenCC 标准。除非你知道自己在做什么，否则请勿使用）
+- `t`: 繁体中文（[OpenCC 标准繁体](https://github.com/BYVoid/OpenCC/blob/master/DESIGN_PRINCIPLES.md)。多数场景建议优先使用 `tw` 或 `hk` 等地区 locale）
 
 **自订转换器**
 
@@ -136,9 +138,13 @@ HTMLConvertHandler.restore(); // 复原      -> 漢語
 
 class list 包含 `ignore-opencc` 的标签不会被转换（包括该标签的所有子节点）。
 
+`HTMLConverter` 也会转换 `placeholder` 和 `aria-label` 属性。
+
 ## 打包优化
 
 如果使用 rollup 等工具打包程式码，以下方式能让打包工具自动移除用不到的部分，减少档案大小。
+
+如果只需要单一转换方向，也可以直接引入 `opencc-js/cn2t` 或 `opencc-js/t2cn`。
 
 ```javascript
 import * as OpenCC from 'opencc-js/core'; // 核心程式码
@@ -152,3 +158,13 @@ console.log(converter('漢語'));
 
 * 由于这是利用 Tree Shaking，所以必须使用 ES Modules
 * 在这个模式之下，没有 `Converter` 函式，必须直接使用 `ConverterFactory`
+
+## 与 `opencc` npm package 的区别
+
+`opencc` npm package 是官方 OpenCC C++ 项目的 Node.js native binding，主要用于 Node.js，依赖 native 或 prebuilt binary，并跟随官方 OpenCC 引擎。
+
+`opencc-js` npm package 是面向浏览器和 Node.js 的纯 JavaScript 实现。它打包了从 `opencc-data` 生成的字典数据，因此不需要 native binary，也不会在运行时下载字典 txt 文件。
+
+`opencc-js` 不是官方 C++ OpenCC 算法的完整移植。它使用 JavaScript trie 和字典 pipeline，并通过 upstream OpenCC test cases 验证，但不应视为对所有输入都与官方 OpenCC bit-for-bit 等价。
+
+`opencc-wasm` npm package 是另一个能在浏览器中使用的实现。它使用 WebAssembly，配置和转换逻辑与官方 `opencc` package 对齐。
