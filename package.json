@@ -3,15 +3,49 @@
   "version": "1.3.0",
   "description": "The JavaScript version of Open Chinese Convert (OpenCC)",
   "main": "./dist/umd/full.js",
+  "types": "./types/full.d.ts",
   "type": "module",
+  "files": [
+    "dist",
+    "types",
+    "README.md",
+    "README-zh-CN.md",
+    "README-zh-TW.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
+      "types": "./types/full.d.ts",
       "import": "./dist/esm/full.js",
       "require": "./dist/umd/full.js"
     },
-    "./cn2t": "./dist/esm/cn2t.js",
-    "./t2cn": "./dist/esm/t2cn.js",
-    "./preset": "./dist/esm-lib/preset/full.js",
+    "./cn2t": {
+      "types": "./types/full.d.ts",
+      "import": "./dist/esm/cn2t.js",
+      "require": "./dist/umd/cn2t.js"
+    },
+    "./t2cn": {
+      "types": "./types/full.d.ts",
+      "import": "./dist/esm/t2cn.js",
+      "require": "./dist/umd/t2cn.js"
+    },
+    "./core": {
+      "types": "./types/core.d.ts",
+      "default": "./dist/esm-lib/core.js"
+    },
+    "./preset": {
+      "types": "./types/preset.d.ts",
+      "default": "./dist/esm-lib/preset/full.js"
+    },
+    "./preset/cn2t": {
+      "types": "./types/preset.d.ts",
+      "default": "./dist/esm-lib/preset/cn2t.js"
+    },
+    "./preset/t2cn": {
+      "types": "./types/preset.d.ts",
+      "default": "./dist/esm-lib/preset/t2cn.js"
+    },
     "./*": "./dist/esm-lib/*.js"
   },
   "scripts": {
